@@ -48,13 +48,13 @@ def coefficient(dp, dv):
     
     mean_dp /= 16
     mean_dv /= 16
-        
+    print(mean_dp, mean_dv) 
     up_sum = 0
     down_sum = 0
     
     for j in range(16):
         up_sum += (dv[j]-mean_dv)*(dp[j]-mean_dp)
-        down_sum += (dv[i]-mean_dv)**2
+        down_sum += (dv[j]-mean_dv)**2
 
     b = up_sum / down_sum
     a = mean_dp - b * mean_dv
@@ -72,7 +72,7 @@ def coefficient(dp, dv):
     print('error_b =', r(error_b),'::: error_a =', r(error_a))
 
     rel_error_b = -error_b / b * 100
-    rel_error_a = -error_a / a * 100
+    rel_error_a = error_a / a * 100
     print('rel_b =', r(rel_error_b),'::: rel_a =', r(rel_error_a), '(in %)')
     
     return b, rel_error_b
@@ -88,7 +88,7 @@ def volume_zero(ob, rel_error_b):
     v_zero = -p_atm/ob
     v_zero_error = rel_v_zero * v_zero / 100
     
-    print('V0 =', r(-p_atm/ob), '::: V0_error =', r(v_zero_error), '::: rel_V0 =', r(rel_v_zero))   
+    print('V0 =', -p_atm/ob, '::: V0_error =', v_zero_error, '::: rel_V0 =', r(rel_v_zero))   
     
 def nu(ob, rel_error_b):
     ob *= 10**(6) #standard
@@ -98,22 +98,20 @@ def nu(ob, rel_error_b):
     rel_nu_error = math.sqrt((2*rel_p_atm())**2 + rel_T_error**2 + rel_error_b**2)
     nu_error = nu * rel_nu_error / 100
      
-    print('nu =', r(nu), '::: nu_error =', r(nu_error), '::: rel_nu =', r(rel_nu_error))
+    print('nu =', nu, '::: nu_error =', nu_error, '::: rel_nu =', r(rel_nu_error))
 
 def make_a_plot(dv_values, dp_values):
-    #x = np.array(dv_values)
-    #f = -116*x - 458
     plt.axis([0,dv_values[-1],dp_values[-1],dp_values[0]])
     plt.plot(dv_values, dp_values)
     plt.plot(dv_values, dp_values, 'ro') #'ro'
-    #plt.plot(x, f)
     plt.xlabel('V, m^3 *e-6')
     plt.ylabel('p, Pa')
     plt.show()
+
 
 values = [4,13,22,29,38,45,54,62,70,79,86,95,102,110,119,126]
 dp_data, dv_data = table_processing(values)
 b, rel_error_b = coefficient(dp_data, dv_data)
 volume_zero(b, rel_error_b)
 nu(b, rel_error_b)
-make_a_plot(dv_data, dp_data)
+#make_a_plot(dv_data, dp_data)
