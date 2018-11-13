@@ -1,6 +1,7 @@
 import math
 import matplotlib.pylab as plt
 import numpy as np
+import random
 
 p_atm = 104200
 p_atm_error = 50
@@ -48,7 +49,6 @@ def coefficient(dp, dv):
     
     mean_dp /= 16
     mean_dv /= 16
-    print(mean_dp, mean_dv) 
     up_sum = 0
     down_sum = 0
     
@@ -101,17 +101,20 @@ def nu(ob, rel_error_b):
     print('nu =', nu, '::: nu_error =', nu_error, '::: rel_nu =', r(rel_nu_error))
 
 def make_a_plot(dv_values, dp_values):
+    x = np.arange(0, 1710, 100)
     plt.axis([0,dv_values[-1],dp_values[-1],dp_values[0]])
-    plt.plot(dv_values, dp_values)
     plt.plot(dv_values, dp_values, 'ro') #'ro'
+    plt.plot(x, x * (-300.4) + 120.3)
     plt.xlabel('V, m^3 *e-6')
     plt.ylabel('p, Pa')
     plt.show()
 
+def outcome(dv_values):
+    pass
 
 values = [4,13,22,29,38,45,54,62,70,79,86,95,102,110,119,126]
 dp_data, dv_data = table_processing(values)
 b, rel_error_b = coefficient(dp_data, dv_data)
 volume_zero(b, rel_error_b)
 nu(b, rel_error_b)
-#make_a_plot(dv_data, dp_data)
+make_a_plot(dv_data, dp_data)
