@@ -5,7 +5,7 @@ import random
 
 p_atm = 104200
 p_atm_error = 50
-T = 24
+T = 273.15 + 24
 T_error = 0.5
 R = 8.31
 
@@ -79,7 +79,7 @@ def coefficient(dp, dv):
     return b, rel_error_b
 
 def rel_p_atm():
-    return p_atm_error / p_atm * 100
+    return 100 * p_atm_error / p_atm
 
 def volume_zero(ob, rel_error_b):
     print(':::')
@@ -94,8 +94,8 @@ def volume_zero(ob, rel_error_b):
 def nu(ob, rel_error_b):
     ob *= 10**(6) #standard
     
-    rel_T_error = 100 * T_error / T 
-    nu = p_atm**2/(R*(T+273.15)*ob)*(-1)
+    rel_T_error = 100 * T_error / T
+    nu = p_atm**2/(R*T*ob)*(-1)
     rel_nu_error = math.sqrt((2*rel_p_atm())**2 + rel_T_error**2 + rel_error_b**2)
     nu_error = nu * rel_nu_error / 100
      
