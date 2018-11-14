@@ -31,11 +31,12 @@ def table_processing(values):
         
         dp = water_density * g * d * 0.001
         dp_data.append(dp)
-        print('dp =', r(dp))
+        print('dp =', round(dp, 3))
         
         dv = values[j] * 0.001 * pi * diam**2 / 4 * 10**6 #in m3 * 10**-6
         dv_data.append(dv)
-        print('dv =', r(dv))  
+        print('dv =', round(dv, 3)) 
+        print(dp_data, dv_data)
     return dp_data, dv_data
 
 def coefficient(dp, dv):
@@ -84,7 +85,7 @@ def volume_zero(ob, rel_error_b):
     print(':::')
     ob *= 10**(6) #standard
 
-    rel_v_zero = math.sqrt(rel_p_atm()**2 + rel_error_b)
+    rel_v_zero = math.sqrt(rel_p_atm()**2 + rel_error_b**2)
     v_zero = -p_atm/ob
     v_zero_error = rel_v_zero * v_zero / 100
     
@@ -93,7 +94,7 @@ def volume_zero(ob, rel_error_b):
 def nu(ob, rel_error_b):
     ob *= 10**(6) #standard
     
-    rel_T_error = T_error / T * 100
+    rel_T_error = 100 * T_error / T 
     nu = p_atm**2/(R*(T+273.15)*ob)*(-1)
     rel_nu_error = math.sqrt((2*rel_p_atm())**2 + rel_T_error**2 + rel_error_b**2)
     nu_error = nu * rel_nu_error / 100
@@ -117,4 +118,4 @@ dp_data, dv_data = table_processing(values)
 b, rel_error_b = coefficient(dp_data, dv_data)
 volume_zero(b, rel_error_b)
 nu(b, rel_error_b)
-make_a_plot(dv_data, dp_data)
+#make_a_plot(dv_data, dp_data)
