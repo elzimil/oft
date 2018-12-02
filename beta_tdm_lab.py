@@ -14,15 +14,18 @@ T = 24 + 273
 molarmass = 29e-3 #air
 n2_molarmass = 28e-3
 o2_molarmass = 32e-3
-eta = (a**4 *density_water*g*K) / (2*L*d**2)
-print('eta:', eta)
-d_eff = ((4*molarmass*R*T)/(9*pi**3 * N_av**2 * eta**2))**(1/4)
-print('diam: ', d_eff)
-lambd = 1.9 * eta * 5 / 2 * R / molarmass
-print('lambda: ', lambd)
-density = p_atm * molarmass /(R*T)
-print('density: ', density)
-print('D: ', eta/density)
 
-
-
+def main():
+    eta = (a**4 *density_water*g*K) / (2*L*d**2)
+    print('eta:', eta)
+    d_eff = ((4*molarmass*R*T)/(9*pi**3 * N_av**2 * eta**2))**(1/4)
+    print('diam: ', d_eff)
+    lambd = 1.9 * eta * 5 / 2 * R / molarmass
+    print('lambda: ', lambd)
+    density = p_atm * molarmass /(R*T)
+    print('density: ', density)
+    print('D: ', eta/density)
+    d_eff_o2 = ((4*o2_molarmass*R*T)/(9*pi**3 * N_av**2 * eta**2))**(1/4)
+    d_eff_n2 = ((4*n2_molarmass*R*T)/(9*pi**3 * N_av**2 * eta**2))**(1/4)
+    print('diam_o2: ',d_eff_o2,'diam_n2:',d_eff_n2)
+main()
