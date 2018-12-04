@@ -1,6 +1,9 @@
+#go to line 355
 import sys
 import math
-   
+import numpy as np
+import matplotlib.pylab as plt
+
 class process:
     def __init__(self, values_before, values_after, type):
 
@@ -54,7 +57,7 @@ def getError():
     sys.exit()
     return 0
 
-def solve(matrix, pos, typeOfProcess): #inverse - type of dependence ()
+def solve(matrix, pos, typeOfProcess): #inverse - type of dependence()
     if typeOfProcess == 2:
         if   pos == [0,0]:
             return matrix[1][0] * matrix[1][1] / matrix[0][1]
@@ -136,16 +139,16 @@ def invoke_laws(outcome):
         typeOfProcess = getSocket(pr.getAttribute()) 
         vb, va = pr.getValues()
     
-        if typeOfProcess == 0: #v=const
+        if typeOfProcess == 0: #v-const
             matrix = [[vb[1], vb[2]],[va[1],va[2]]]
 
-        elif typeOfProcess == 1: #p=const
+        elif typeOfProcess == 1: #p-const
             matrix = [[vb[0], vb[2]],[va[0],va[2]]]
 
         elif typeOfProcess == 2: #t-const
             matrix = [[vb[0], vb[1]],[va[0],va[1]]]
 
-        else: #adiabatic
+        else: #ad
 
             for c in range(3):
                 interrupt_criteria = 0
@@ -184,7 +187,6 @@ def invoke_laws(outcome):
 def iterate():
     state_c = 0
     for iter in range(len(states) * 3): #main counter
-
         temp_act = process(processes[state_c][0], processes[state_c][1], processes[state_c][2])
         definition(temp_act)
 
@@ -212,6 +214,7 @@ def initial_stage():
 
     if error == l:
         getError()
+        #fix
 
     iterate()
     return processes
@@ -275,7 +278,10 @@ def Q_calc():
 
 
 def getdU(process_counter):
-    return i / 2 * R * amount_of_sub() * (processes[process_counter][1][2] - processes[process_counter][0][2])
+    try:
+        return i / 2 * R * amount_of_sub() * (processes[process_counter][1][2] - processes[process_counter][0][2])
+    except:
+        getError()
 
 def efficiency(attr1, attr2):
     return (attr2 - attr1) / attr2 * 100
@@ -283,12 +289,58 @@ def efficiency(attr1, attr2):
 def f_efficiency(attr1, attr2):
     return 100 * attr1 / (attr2 - attr1)
 
+def compare(bf, af):
+    if data[bf][1] > data[af][1]:
+        return data[af][1], data[bf][1]
+    else:
+        return data[bf][1], data[af][1]
+
+def determiner(beforestate, afterstate):
+
+    t = types[beforestate]
+    temp_min_arg, temp_max_arg = compare(beforestate, afterstate)
+
+    if t == 'p':
+        arg = np.linspace(temp_min_arg, temp_max_arg, 32)
+        func = np.array([data[beforestate][0] for generate in range(len(arg))])
+        clr = 'm'
+    #excl for type-v
+    elif t == 't':
+        arg = np.linspace(temp_min_arg, temp_max_arg, 32)
+        func = data[afterstate][0] * data[afterstate][1] / arg
+        clr = 'r'
+    elif t == 'a': #ad
+        const_ad = data[afterstate][0] * data[afterstate][1]**gamma
+        arg = np.linspace(temp_min_arg, temp_max_arg, 32)
+        func = const_ad/arg**gamma
+        clr = 'c'
+
+    return arg, func, clr
+
+def make_a_plot(data_plot):  
+    afterstate = 0
+
+    for beforestate in range(l):
+        if beforestate == l-1:
+            afterstate = 0
+        else:
+            afterstate = beforestate + 1
+        
+        if types[beforestate] != 'v':
+            x, y, key = determiner(beforestate, afterstate)
+            plt.plot(x, y, key)
+        else:
+            plt.axvline(x=data[beforestate][1],color ='g') #borders!
+
+    plt.show()
+    return 0
+#fuck the types
 def main(): 
 
-    for surety_counter in range(l):
+    for surety_counter in range(3*l):
         invoke_laws(outcome)
         iterate()
-
+     
     show('p-V-T:')
     sumQ, hQ, fQ = Q_calc()
     minT, maxT = getTemperatures()
@@ -298,22 +350,24 @@ def main():
     print('Efficiency for Karno_c:', r(efficiency(minT, maxT)), '%')
     print('Refr. Efficiency: ', r(f_efficiency(abs(fQ), hQ)), '%')
 
-    return 1
+    return states
 
 # --input-zone begins--
-# the values must be given in Pa, m3, T
+# number of processes = 3 or 4
+# the values must be given in Pa, m3, K
 # if the value is undefined => type 'None'
+# if you got error => your data is wrong
+number_of_processes = 4
 s1 = [None,None,None]
 s2 = [None,None,None]
 s3 = [None,None,None]
 s4 = [None,None,None]
-types = 'pvta'
-i = 5
+types = 'pavt'
+i = 5 
 # --input-zone ends--
 
 states = [s1,s2,s3]
-if len(types) == 4 and not (s4[0] == None 
-                            and s4[1] == None and s4[2] == None):
+if number_of_processes == 4:
     states.append(s4)
 gamma = (i+2) / i
 R = 8.31
@@ -322,4 +376,5 @@ if len(types) != l:
     getError()
 processes = []
 outcome = initial_stage()
-main()
+data = np.array(main())
+make_a_plot(data)
